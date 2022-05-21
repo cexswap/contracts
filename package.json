@@ -1,0 +1,51 @@
+{
+  "name": "cexswap",
+  "author": "cexswap",
+  "license": "MIT",
+  "version": "0.0.1",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:cexswap/contracts.git"
+  },
+  "devDependencies": {
+    "@ethersproject/hardware-wallets": "5.0.14",
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "chai": "^4.3.6",
+    "ethereum-waffle": "^3.4.4",
+    "ethers": "^5.6.4",
+    "hardhat": "^2.9.3",
+    "hardhat-deploy": "^0.11.4",
+    "hardhat-deploy-ethers": "^0.3.0-beta.13",
+    "hardhat-exposed": "^0.2.3",
+    "rimraf": "3.0.2",
+    "solhint": "3.3.6",
+    "solidity-coverage": "^0.7.20"
+  },
+  "scripts": {
+    "test": "hardhat test --show-stack-traces",
+    "clean": "rimraf artifacts cache coverage deployments",
+    "coverage": "hardhat coverage",
+    "compile": "hardhat compile --force",
+    "doc-gen": "yarn run solidity-utils-docify",
+    "copy-contract": "hardhat run scripts/copy_contract.js",
+    "deploy-local": "hardhat --network localhost deploy --export dist/contracts.json && yarn copy-contract",
+    "deploy-ganache": "hardhat --network ganache deploy --export dist/contracts.json && yarn copy-contract",
+    "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "lint:sol:fix": "solhint --max-warnings 0 \"contracts/**/*.sol\" --fix",
+    "lint": "yarn run lint:sol",
+    "lint:fix": "yarn run lint:sol:fix"
+  },
+  "dependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
+    "@nomiclabs/hardhat-truffle5": "^2.0.6",
+    "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@openzeppelin/contracts": "^4.5.0",
+    "@openzeppelin/test-helpers": "^0.5.15",
+    "bn.js": "4.11.0",
+    "dotenv": "^16.0.0",
+    "hardhat-gas-reporter": "^1.0.8",
+    "typescript": "^4.6.3"
+  }
+}
