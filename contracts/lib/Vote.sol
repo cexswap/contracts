@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 library Vote {
-
-  uint256 private constant _VOTE_DECAY_PERIOD = 1 days;
 
   struct Data {
     uint256 value;

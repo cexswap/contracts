@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./BalanceHelper.sol";
 
 
@@ -44,7 +44,7 @@ abstract contract AbstractReward is Ownable, BalanceHelper {
       TokenReward storage tokenReward = tokenRewards[i];
       uint256 newRewardPerToken = getRewardPerToken(i);
       tokenReward.rewardPerToken = newRewardPerToken;
-      tokenReward.lastUpdateTime = getRewardLastTimeApplicable(i);
+      tokenReward.lastUpdateTime = getRewardLastUpdateTime(i);
       if(account != address(0)){
         tokenReward.rewards[account] = _getAccountEarnedReward(i, account, newRewardPerToken);
         tokenReward.userRewardPerTokenPaid[account] = newRewardPerToken;
@@ -72,7 +72,7 @@ abstract contract AbstractReward is Ownable, BalanceHelper {
     }
 
     return tokenReward.rewardPerToken.add(
-      getRewardLastTimeApplicable(position)
+      getRewardLastUpdateTime(position)
           .sub(tokenReward.lastUpdateTime)
           .mul(tokenReward.rate)
           .div(totalSupply())
@@ -80,7 +80,7 @@ abstract contract AbstractReward is Ownable, BalanceHelper {
   }
 
   /** Returns last time specific token reward was applicable */
-  function getRewardLastTimeApplicable(uint position)
+  function getRewardLastUpdateTime(uint position)
     public
     view
     returns(uint256)

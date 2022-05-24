@@ -1,23 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../interfaces/IGovernanceFactory.sol";
-import "../lib/LiquidVoting.sol";
+import "../lib/PoolVoting.sol";
 import "../lib/SwapConstants.sol";
 import "../lib/SafeCast.sol";
-
-import "hardhat/console.sol";
 
 /*
 * Swap governance
 */
 abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
   using Vote for Vote.Data;
-  using LiquidVoting for LiquidVoting.Data;
+  using PoolVoting for PoolVoting.Data;
   using VirtualVote for VirtualVote.Data;
   using SafeCast for uint256;
   using SafeMath for uint256;
@@ -27,9 +25,9 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
   event DecayPeriodUpdated(address indexed user, uint256 decayPeriod, bool isDefault, uint256 amount);
 
   IGovernanceFactory public governanceFactory; 
-  LiquidVoting.Data private _fee;
-  LiquidVoting.Data private _slippageFee;
-  LiquidVoting.Data private _decayPeriod;
+  PoolVoting.Data private _fee;
+  PoolVoting.Data private _slippageFee;
+  PoolVoting.Data private _decayPeriod;
 
   constructor(IGovernanceFactory _governanceFactory)
   {
@@ -243,7 +241,7 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
     bool updateTo = !(to == address(0) || _governanceFactory.isFeeCollector(to));
 
     if(!updateFrom && !updateTo) {
-      // mint to feeReceiver or burn from feeReceiver
+      // mint to feeCollector or burn from feeCollector
       return;
     }
 
@@ -266,9 +264,9 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
 
     (uint256 defaultFee, uint256 defaultSlippageFee, uint256 defaultDecayPeriod) = _governanceFactory.defaults();
   
-    _updateOntransfer(params, defaultFee, _emitVoteFeeUpdate, _fee);
-    _updateOntransfer(params, defaultSlippageFee, _emitVoteSlippageFeeUpdate, _slippageFee);
-    _updateOntransfer(params, defaultDecayPeriod, _emitVoteDecayPeriodUpdate, _decayPeriod); 
+    _updateOnTransfer(params, defaultFee, _emitVoteFeeUpdate, _fee);
+    _updateOnTransfer(params, defaultSlippageFee, _emitVoteSlippageFeeUpdate, _slippageFee);
+    _updateOnTransfer(params, defaultDecayPeriod, _emitVoteDecayPeriodUpdate, _decayPeriod); 
   }
 
   struct ParamsHelper {
@@ -282,23 +280,23 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
     uint256 newTotalSupply;
   }
 
-  function _updateOntransfer(
+  function _updateOnTransfer(
     ParamsHelper memory params, 
     uint256 defaultValue,
     function(address, uint256, bool, uint256) internal emitEvent,
-    LiquidVoting.Data storage votingData
+    PoolVoting.Data storage votingData
   ) private
   {
     
     Vote.Data memory voteFrom = votingData.votes[params.from];
     Vote.Data memory voteTo = votingData.votes[params.to];
-    /*
+    
     if(voteFrom.isDefault() && voteTo.isDefault() && params.updateFrom && params.updateTo) {
       emitEvent(params.from, voteFrom.get(defaultValue), true, params.balanceFrom.sub(params.amount));
       emitEvent(params.to, voteTo.get(defaultValue), true, params.balanceTo.add(params.amount));
       return;
     }
-    */
+    
     if(params.updateFrom) {
       votingData.updateBalance(
         params.from, 

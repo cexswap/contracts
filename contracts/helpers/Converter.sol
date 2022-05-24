@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/Math.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/math/Math.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "../interfaces/ISwapFactory.sol";
-import "../lib/FADERC20.sol";
+import "../lib/ERC20Helper.sol";
 import "../lib/VirtualBalance.sol";
 import "../Swap.sol";
 
@@ -17,18 +17,18 @@ import "../Swap.sol";
 abstract contract Converter is Ownable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
-  using FADERC20 for IERC20;
+  using ERC20Helper for IERC20;
   using VirtualBalance for VirtualBalance.Data;
 
   uint256 private constant _ONE = 1e18;
   uint256 private constant _MAX_SPREAD = 0.01e18;
   uint256 private constant _MAX_LIQUIDITY_SHARE = 100;
-  IERC20 public immutable fadToken;
+  IERC20 public immutable cexToken;
   ISwapFactory public immutable swapFactory;
   mapping(IERC20 => bool) public pathWhitelist;
 
-  constructor(IERC20 _fadToken, ISwapFactory _swapFactory) {
-    fadToken = _fadToken;
+  constructor(IERC20 _cexToken, ISwapFactory _swapFactory) {
+    cexToken = _cexToken;
     swapFactory = _swapFactory;
   }
 
@@ -49,7 +49,7 @@ abstract contract Converter is Ownable {
   modifier validPath(IERC20[] memory path){
     require(path.length > 0, "CONVERTOR_MIN_PATH_LENGTH_IS_1");
     require(path.length < 5, "CONVERTOR_MIN_PATH_LENGTH_IS_4");
-    require(path[path.length - 1] == fadToken, "CONVERTOR_SWAP_TO_TARGET_TOKEN");
+    require(path[path.length - 1] == cexToken, "CONVERTOR_SWAP_TO_TARGET_TOKEN");
 
     for(uint256 i = 0; i < path.length; i += 1){
       require(pathWhitelist[path[i]], "CONVERTOR_TOKEN_NOT_WHITELIST");

@@ -34,7 +34,7 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
     }
     this.factory = await SwapFactory.new(wallet1, constants.ZERO_ADDRESS, _);
   });
-  /*
+  
   describe('Creation', async function () {
     it('Empty name', async function () {
       await expectRevert(
@@ -216,7 +216,7 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
       expect(await this.swap.balanceOf(wallet3)).to.be.bignumber.equal('1835');
     });
   });
-  */
+  
   describe('Deposits - Withdraws - Swap', async function () {
     beforeEach(async function() {
       this.creator = await PoolCreator.new();
@@ -239,17 +239,17 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
       await this.WETH.approve(this.swap.address, bal.weth('10'), { from: wallet2 });    
     });
     
-    /*
+    
     describe('First deposit', async function () {
       it('Amount is zero', async function () {
         await expectRevert(
           this.swap.deposit([bal.weth('0'), bal.usdt('100')], [bal.zero, bal.zero], { from: wallet1 }),
-          'SWAP_AMOUNT_IS_ZERO'
+          'SWAP_DEPOSIT_AMOUNT_IS_ZERO'
         );
 
         await expectRevert(
           this.swap.deposit([bal.weth('1'), bal.usdt('0')], [bal.zero, bal.zero], { from: wallet1 }),
-          'SWAP_AMOUNT_IS_ZERO'
+          'SWAP_DEPOSIT_AMOUNT_IS_ZERO'
         );
       });
 
@@ -565,7 +565,7 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
         await checkBalances(this.swap, this.USDT, bal.usdt('150'), '174166666666666666666', bal.usdt('150'));
       });
     });
-    */
+    
     describe('Withdraws', async function () {
       beforeEach(async function() {
         await this.swap.deposit([bal.weth('1'), bal.usdt('100')], [bal.zero, bal.zero], { from: wallet1 });

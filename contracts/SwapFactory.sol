@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IPoolCreator.sol";
 import "./interfaces/ISwapFactory.sol";
-import "./lib/FADERC20.sol";
+import "./lib/ERC20Helper.sol";
 import "./Swap.sol";
 import "./governance/GovernanceFactory.sol";
 
 
 /*
-* contract for maintaining tokens whitelist
+* Contract for maintaining tokens whitelist
 */
 contract SwapFactory is ISwapFactory, GovernanceFactory {
-  using FADERC20 for IERC20;
+  using ERC20Helper for IERC20;
 
   event Deployed(
     Swap indexed swap,
@@ -62,7 +62,7 @@ contract SwapFactory is ISwapFactory, GovernanceFactory {
     pool = poolCreator.deploy(
       token1, 
       token2, 
-      string(abi.encodePacked("FADSWAP Liquidity Pool (", symbole1, "-", symbole2, ")")), 
+      string(abi.encodePacked("Liquidity Pool (", symbole1, "-", symbole2, ")")), 
       string(abi.encodePacked(symbole1, "-", symbole2, "-LP")), 
       poolOwner
     );

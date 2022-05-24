@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "../interfaces/IGovernanceFactory.sol";
-import "../lib/ExplicitLiquidVoting.sol";
+import "../lib/ExplicitPoolVoting.sol";
 import "../lib/SwapConstants.sol";
 import "../lib/SafeCast.sol";
 import "../helpers/BalanceHelper.sol";
@@ -14,7 +14,7 @@ import "./BaseGovernance.sol";
 */
 contract GovernanceFactory is IGovernanceFactory, BaseGovernance, BalanceHelper, Ownable, Pausable {
   using Vote for Vote.Data;
-  using ExplicitLiquidVoting for ExplicitLiquidVoting.Data;
+  using ExplicitPoolVoting for ExplicitPoolVoting.Data;
   using VirtualVote for VirtualVote.Data;
   using SafeMath for uint256;
   using SafeCast for uint256;
@@ -27,11 +27,11 @@ contract GovernanceFactory is IGovernanceFactory, BaseGovernance, BalanceHelper,
   event GovernanceWalletUpdate(address governanceWallet);
   event FeeCollectorUpdate(address feeCollector);
 
-  ExplicitLiquidVoting.Data private _defaultFee;
-  ExplicitLiquidVoting.Data private _defaultSlippageFee;
-  ExplicitLiquidVoting.Data private _defaultDecayPeriod;
-  ExplicitLiquidVoting.Data private _referralShare;
-  ExplicitLiquidVoting.Data private _governanceShare;
+  ExplicitPoolVoting.Data private _defaultFee;
+  ExplicitPoolVoting.Data private _defaultSlippageFee;
+  ExplicitPoolVoting.Data private _defaultDecayPeriod;
+  ExplicitPoolVoting.Data private _referralShare;
+  ExplicitPoolVoting.Data private _governanceShare;
 
   /// @inheritdoc IGovernanceFactory
   address public override governanceWallet;

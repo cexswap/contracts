@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/math/Math.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/Math.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./interfaces/IFeeCollector.sol";
-import "./lib/FADERC20.sol";
+import "./lib/ERC20Helper.sol";
 import "./lib/SQRT.sol";
 import "./lib/VirtualBalance.sol";
 import "./governance/Governance.sol";
@@ -13,7 +13,7 @@ import "./governance/Governance.sol";
 contract Swap is Governance {
   using SQRT for uint256;
   using SafeMath for uint256;
-  using FADERC20 for IERC20;
+  using ERC20Helper for IERC20;
   using VirtualBalance for VirtualBalance.Data;
 
   struct Balances {
@@ -169,7 +169,7 @@ contract Swap is Governance {
     IERC20[2] memory _tokens = [token0, token1];
     require(
       msg.value == (_tokens[0].isNativeToken() ? maxAmounts[0] : (_tokens[1].isNativeToken() ? maxAmounts[1] : 0)), 
-      "SWAP_WRONG_MSG_VALUE"
+      "SWAP_DEPOSIT_WRONG_MSG_VALUE"
     );
     uint256 totalSupply = totalSupply();
     if(totalSupply == 0) {
@@ -178,9 +178,9 @@ contract Swap is Governance {
 
       for(uint i = 0; i < maxAmounts.length; i++) {
         fairSupply = Math.max(fairSupply, maxAmounts[i]);
-        require(maxAmounts[i] > 0, "SWAP_AMOUNT_IS_ZERO");
-        require(maxAmounts[i] >= minAmounts[i], "SWAP_MIN_AMOUNT_NOT_REACHED");
-        _tokens[i].fadTransferFrom(payable(msg.sender), address(this), maxAmounts[i]);
+        require(maxAmounts[i] > 0, "SWAP_DEPOSIT_AMOUNT_IS_ZERO");
+        require(maxAmounts[i] >= minAmounts[i], "SWAP_DEPOSIT_MIN_AMOUNT_LOW");
+        _tokens[i].customTransferFrom(payable(msg.sender), address(this), maxAmounts[i]);
         receivedAmounts[i] = maxAmounts[i];
       }
     } else {
@@ -196,10 +196,10 @@ contract Swap is Governance {
       
       uint256 fairSupplyCached = fairSupply; 
       for(uint i = 0; i < maxAmounts.length; i++) {
-        require(maxAmounts[i] > 0, "SWAP_AMOUNT_IS_ZERO");
+        require(maxAmounts[i] > 0, "SWAP_DEPOSIT_AMOUNT_IS_ZERO");
         uint256 amount = realBalances[i].mul(fairSupplyCached).add(totalSupply - 1).div(totalSupply);
-        require(amount >= minAmounts[i], "SWAP_MIN_AMOUNT_NOT_REACHED");
-        _tokens[i].fadTransferFrom(payable(msg.sender), address(this), amount);
+        require(amount >= minAmounts[i], "SWAP_DEPOSIT_MIN_AMOUNT_LOW");
+        _tokens[i].customTransferFrom(payable(msg.sender), address(this), amount);
         receivedAmounts[i] = _tokens[i].getBalanceOf(address(this)).sub(realBalances[i]);
         fairSupply = Math.min(fairSupply, totalSupply.mul(receivedAmounts[i]).div(realBalances[i]));
       }
@@ -240,9 +240,9 @@ contract Swap is Governance {
       IERC20 token = _tokens[i];
       uint256 preBalance = token.getBalanceOf(address(this));
       uint256 value = preBalance.mul(amount).div(totalSupply);
-      token.fadTransfer(target, value);
+      token.customTransfer(target, value);
       withdrawnAmounts[i] = value;
-      require(i >= minReturns.length || value >= minReturns[i], "SWAP_RESULT_NOT_ENOUGH");
+      require(i >= minReturns.length || value >= minReturns[i], "SWAP_WITHDRAW_RESULT_NOT_ENOUGH");
       virtualBalanceToRemove[token].scale(_decayPeriod, preBalance, totalSupply.add(amount), totalSupply);
       virtualBalanceToAdd[token].scale(_decayPeriod, preBalance, totalSupply.add(amount), totalSupply);
     }
@@ -279,7 +279,17 @@ contract Swap is Governance {
     });
 
     (confirmed, result, virtualBalances) = _doTransfers(src, dst, amount, minReturn, receiver, balances, fees);
-    emit Swapped(msg.sender, receiver, address(src), address(dst), confirmed, result, virtualBalances.src, virtualBalances.dst, referral);
+    emit Swapped(
+      msg.sender, 
+      receiver, 
+      address(src), 
+      address(dst), 
+      confirmed, 
+      result, 
+      virtualBalances.src, 
+      virtualBalances.dst, 
+      referral
+    );
     
     _mintRewards(confirmed, result, referral, balances, fees);
 
@@ -305,11 +315,19 @@ contract Swap is Governance {
     virtualBalances.src = Math.max(virtualBalances.src, balances.src);
     virtualBalances.dst = virtualBalanceToRemove[dst].current(_decayPeriod, balances.dst);
     virtualBalances.dst = Math.min(virtualBalances.dst, balances.dst);
-    src.fadTransferFrom(payable(msg.sender), address(this), amount);
+    src.customTransferFrom(payable(msg.sender), address(this), amount);
     confirmed = src.getBalanceOf(address(this)).sub(balances.src);
-    result = _getQuote(src, dst, confirmed, virtualBalances.src, virtualBalances.dst, fees.fee, fees.slippageFee);
+    result = _getQuote(
+      src, 
+      dst, 
+      confirmed, 
+      virtualBalances.src, 
+      virtualBalances.dst, 
+      fees.fee, 
+      fees.slippageFee
+    );
     require(result > 0 && result >= minReturn, "SWAP_RESULT_NOT_ENOUGH");
-    dst.fadTransfer(receiver, result);
+    dst.customTransfer(receiver, result);
 
     // Update virtual balances to the same direction only at imbalanced state
     if(virtualBalances.src != balances.src) {
@@ -325,8 +343,13 @@ contract Swap is Governance {
     virtualBalanceToAdd[dst].update(_decayPeriod, balances.dst);
   }
 
-  function _mintRewards(uint256 confirmed, uint256 result, address referral, Balances memory balances, Fees memory fees)
-    private 
+  function _mintRewards(
+    uint256 confirmed, 
+    uint256 result, 
+    address referral, 
+    Balances memory balances, 
+    Fees memory fees
+  ) private 
   {
     (
       uint256 referralShare, 
@@ -346,8 +369,13 @@ contract Swap is Governance {
       invariantRatio = invariantRatio.sqrt();
       uint256 invariantIncrease = totalSupply().mul(invariantRatio.sub(1e18)).div(invariantRatio);
     
-      referralReward = (referral != address(0)) ? invariantIncrease.mul(referralShare).div(SwapConstants._FEE_DENOMINATOR) : 0;
-      governanceReward = (governanceWallet != address(0)) ? invariantIncrease.mul(governanceShare).div(SwapConstants._FEE_DENOMINATOR) : 0;
+      referralReward = (referral != address(0)) ? 
+                        invariantIncrease.mul(referralShare).div(SwapConstants._FEE_DENOMINATOR) 
+                        : 0;
+                        
+      governanceReward = (governanceWallet != address(0)) ? 
+                        invariantIncrease.mul(governanceShare).div(SwapConstants._FEE_DENOMINATOR) 
+                        : 0;
       
       if(feeCollector == address(0)) {
         if(referralReward > 0) {
@@ -432,7 +460,7 @@ contract Swap is Governance {
     uint256 balance0 = token0.getBalanceOf(address(this));
     uint256 balance1 = token1.getBalanceOf(address(this));
 
-    token.fadTransfer(payable(msg.sender), amount);
+    token.customTransfer(payable(msg.sender), amount);
     require(token0.getBalanceOf(address(this)) >= balance0, "SWAP_RESCUE_DENIED_BAL_0");
     require(token1.getBalanceOf(address(this)) >= balance1, "SWAP_RESCUE_DENIED_BAL_1");
     require(balanceOf(address(this)) >= _BASE_SUPPLY, "SWAP_RESCUE_DENIED_BASE_SUPPLY");

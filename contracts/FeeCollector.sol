@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./interfaces/IFeeCollector.sol";
-import "./lib/FADERC20.sol";
+import "./lib/ERC20Helper.sol";
 import "./helpers/Converter.sol";
 
 /*
 * The Fee Collector
 */
 contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
-  using FADERC20 for IERC20;
+  using ERC20Helper for IERC20;
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -27,7 +27,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
     uint256 totalSupply;
     uint256 token0Balance;
     uint256 token1Balance;
-    uint256 fadBalance;
+    uint256 cexBalance;
   }
 
   struct TokenInfo {
@@ -39,7 +39,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   mapping(address => UserInfo) public userInfo;
   mapping(IERC20 => TokenInfo) public tokenInfo;
 
-  constructor(IERC20 fadToken, ISwapFactory _swapFactory) Converter(fadToken, _swapFactory){}
+  constructor(IERC20 cexToken, ISwapFactory _swapFactory) Converter(cexToken, _swapFactory){}
 
   /// @inheritdoc IFeeCollector
   function updateRewards(address[] calldata receivers, uint256[] calldata amounts) external override
@@ -81,7 +81,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   }
 
   /** Perform chain swap described by `path`. First element of `path` should match either token of the `Swap`.
-  * The last token in chain should always be `FAD` 
+  * The last token in chain should always be `CEX SWAP` token
   */
   function trade(Swap swap, IERC20[] memory path) external nonReentrant validPool(swap) validSpread(swap)
   {
@@ -117,7 +117,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
       }
     } else {
       uint256 receivedAmount = _swap(path, amount, payable(address(this)));
-      epochBalance.fadBalance = epochBalance.fadBalance.add(receivedAmount);
+      epochBalance.cexBalance = epochBalance.cexBalance.add(receivedAmount);
     }
 
     if(path[0] == tokens[0]) {
@@ -144,7 +144,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
     if(balance > 1) {
       // Avoid erasing storage to decrease gas footprint for payments
       user.balance = 1;
-      fadToken.transfer(msg.sender, balance - 1);
+      cexToken.transfer(msg.sender, balance - 1);
     }
   }
 
@@ -180,7 +180,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
       IERC20[] memory tokens = swap.getTokens();
       epochBalance.token0Balance = _transferTokenShare(tokens[0], epochBalance.token0Balance, share, totalSupply);
       epochBalance.token1Balance = _transferTokenShare(tokens[1], epochBalance.token1Balance, share, totalSupply);
-      epochBalance.fadBalance = _transferTokenShare(fadToken, epochBalance.fadBalance, share, totalSupply);
+      epochBalance.cexBalance = _transferTokenShare(cexToken, epochBalance.cexBalance, share, totalSupply);
     }
   }
 
@@ -190,7 +190,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   {
     uint256 amount = balance.mul(share).div(totalSupply);
     if(amount > 0) {
-      token.fadTransfer(payable(msg.sender), amount);
+      token.customTransfer(payable(msg.sender), amount);
     }
 
     return balance.sub(amount);
@@ -232,13 +232,13 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   {
     uint256 share = user.share[swap][epoch];
     if(share > 0) {
-      uint256 fabBalance = token.epochBalance[epoch].fadBalance;
+      uint256 cexBalance = token.epochBalance[epoch].cexBalance;
       uint256 totalSupply = token.epochBalance[epoch].totalSupply;
 
-      collected = fabBalance.mul(share).div(totalSupply);
+      collected = cexBalance.mul(share).div(totalSupply);
       user.share[swap][epoch] = 0;
       token.epochBalance[epoch].totalSupply = totalSupply.sub(share);
-      token.epochBalance[epoch].fadBalance = fabBalance.sub(collected);
+      token.epochBalance[epoch].cexBalance = cexBalance.sub(collected);
     }
   }
 }

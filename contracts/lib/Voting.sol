@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
-import "@openzeppelin/contracts/utils/math/Math.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/Math.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Vote.sol";
 
 
@@ -40,7 +40,17 @@ library Voting {
     uint256 defaultVote,
     function(address, uint256, bool, uint256) emitEvent
   ) internal {
-    return _update(self, user, oldVote, newBalance == 0 ? Vote.init() : oldVote, oldBalance, newBalance, newTotalSupply, defaultVote, emitEvent);
+    return _update(
+      self, 
+      user, 
+      oldVote, 
+      newBalance == 0 ? Vote.init() : oldVote, 
+      oldBalance, 
+      newBalance, 
+      newTotalSupply, 
+      defaultVote, 
+      emitEvent
+    );
   }
 
   function _update(

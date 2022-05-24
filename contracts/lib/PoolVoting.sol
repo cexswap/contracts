@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./SafeCast.sol";
 import "./VirtualVote.sol";
 import "./Vote.sol";
 
-library LiquidVoting {
+library PoolVoting {
   using SafeMath for uint256;
   using SafeCast for uint256;
   using Vote for Vote.Data;
@@ -20,7 +20,7 @@ library LiquidVoting {
   }
 
   function updateVote(
-    LiquidVoting.Data storage self,
+    PoolVoting.Data storage self,
     address user,
     Vote.Data memory oldVote,
     Vote.Data memory newVote,
@@ -33,7 +33,7 @@ library LiquidVoting {
   }
 
   function updateBalance(
-    LiquidVoting.Data storage self,
+    PoolVoting.Data storage self,
     address user,
     Vote.Data memory oldVote,
     uint256 oldBalance,
@@ -42,11 +42,21 @@ library LiquidVoting {
     uint256 defaultVote,
     function(address, uint256, bool, uint256) emitEvent
   ) internal {
-    return _update(self, user, oldVote, newBalance == 0 ? Vote.init() : oldVote, oldBalance, newBalance, newTotalSupply, defaultVote, emitEvent);
+    return _update(
+      self, 
+      user, 
+      oldVote, 
+      newBalance == 0 ? Vote.init() : oldVote, 
+      oldBalance, 
+      newBalance, 
+      newTotalSupply, 
+      defaultVote, 
+      emitEvent
+    );
   }
 
   function _update(
-    LiquidVoting.Data storage self,
+    PoolVoting.Data storage self,
     address user,
     Vote.Data memory oldVote,
     Vote.Data memory newVote,

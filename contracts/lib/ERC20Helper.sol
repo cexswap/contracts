@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
-library FADERC20 {
+library ERC20Helper {
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
 
@@ -29,7 +29,7 @@ library FADERC20 {
     }
   }
 
-  function fadTransfer(IERC20 token, address payable to, uint256 amount) internal
+  function customTransfer(IERC20 token, address payable to, uint256 amount) internal
   {
     if(amount > 0){
       if(isNativeToken(token)){
@@ -40,13 +40,13 @@ library FADERC20 {
     }
   }
 
-  function fadTransferFrom(IERC20 token, address payable from, address to, uint256 amount) internal
+  function customTransferFrom(IERC20 token, address payable from, address to, uint256 amount) internal
   {
     if(amount > 0){
       if(isNativeToken(token)){
-        require(msg.value >= amount, "FADERC20_VALUE_NOT_ENOUGH");
-        require(from == msg.sender, "FADERC20_FROM_NOT_SENDER");
-        require(to == address(this), "FADERC20_TO_NOT_THIS");
+        require(msg.value >= amount, "ERC20Helper_VALUE_NOT_ENOUGH");
+        require(from == msg.sender, "ERC20Helper_FROM_NOT_SENDER");
+        require(to == address(this), "ERC20Helper_TO_NOT_THIS");
         if(msg.value > amount) {
           //Return the remaining to user
           from.transfer(msg.value.sub(amount));
@@ -63,7 +63,7 @@ library FADERC20 {
     returns(string memory)
   {
     if(isNativeToken(token)){
-      return "BNB";
+      return "ETH";
     }
 
     (bool success, bytes memory data) = address(token).staticcall{ gas: 20000}(

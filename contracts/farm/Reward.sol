@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.6;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../Swap.sol";
 import "../lib/SwapConstants.sol";
 import "../lib/Voting.sol";
-import "../lib/FADERC20.sol";
+import "../lib/ERC20Helper.sol";
 import "../helpers/AbstractReward.sol";
 
 /*
@@ -14,7 +14,7 @@ import "../helpers/AbstractReward.sol";
 contract Reward is AbstractReward {
     using Vote for Vote.Data;
     using Voting for Voting.Data;
-    using FADERC20 for IERC20;
+    using ERC20Helper for IERC20;
     using SafeMath for uint256;
 
     event Staked(address indexed user, uint256 amount);
@@ -288,7 +288,7 @@ contract Reward is AbstractReward {
       require(token != tokenRewards[i].gift, "REWARD_CANT_RESCUE_GIFT");
     }
 
-    token.fadTransfer(payable(msg.sender), amount);
+    token.customTransfer(payable(msg.sender), amount);
 
     if(token == swap) {
       require(token.getBalanceOf(address(this)) == totalSupply(), "REWARD_CANT_WITHDRAW_FUNDS");
