@@ -61,9 +61,7 @@ library LiquidVoting {
     uint256 oldDefaultVote = self.defaultVote;
     uint256 newDefaultVote = oldDefaultVote;
     if(oldVote.isDefault()) {
-      if(newDefaultVote > oldBalance) {
-        newDefaultVote = newDefaultVote.sub(oldBalance);
-      }
+      newDefaultVote = newDefaultVote.sub(oldBalance);
     } else {
       newWeightedSum = newWeightedSum.sub(oldBalance.mul(oldVote.get(defaultVote)));
     }

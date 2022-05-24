@@ -37,7 +37,7 @@ This allows trades between the token pair based on the relative supplies.
 - [x] Project Idea's & Prototype design
 - [x] Team Building
 - [x] Pitch deck Completed 
-- [ ] White paper
+- [x] White paper
 - [x] Website Creation & Launch
 
 **Q3 2022:**

@@ -10,9 +10,9 @@ import "./lib/FADERC20.sol";
 import "./helpers/Converter.sol";
 
 /*
-* The Referral Fee Collector
+* The Fee Collector
 */
-contract ReferralFeeReceiver is IFeeCollector, Converter, ReentrancyGuard {
+contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   using FADERC20 for IERC20;
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -50,11 +50,11 @@ contract ReferralFeeReceiver is IFeeCollector, Converter, ReentrancyGuard {
   }
 
   /// @inheritdoc IFeeCollector
-  function updateReward(address referral, uint256 amount) public override
+  function updateReward(address receiver, uint256 amount) public override
   {
     Swap swap = Swap(msg.sender);
     TokenInfo storage token = tokenInfo[swap];
-    UserInfo storage user = userInfo[referral];
+    UserInfo storage user = userInfo[receiver];
     uint256 currentEpoch = token.currentEpoch;
 
     // Add new reward to current epoch
@@ -142,7 +142,7 @@ contract ReferralFeeReceiver is IFeeCollector, Converter, ReentrancyGuard {
 
     uint256 balance = user.balance;
     if(balance > 1) {
-      // Avoid erasing storage to decrease gas footprint for referral payments
+      // Avoid erasing storage to decrease gas footprint for payments
       user.balance = 1;
       fadToken.transfer(msg.sender, balance - 1);
     }

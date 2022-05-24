@@ -9,13 +9,13 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log('network id:', await getChainId());
 
   const SwapFactory = await ethers.getContractFactory('SwapFactory');
-  const ReferralFeeReceiver = await ethers.getContractFactory('ReferralFeeReceiver');
+  const FeeCollector = await ethers.getContractFactory('FeeCollector');
 
   const swapFactoryAddress = (await deployments.get('SwapFactory')).address;
-  const feeCollectorAddress = (await deployments.get('ReferralFeeReceiver')).address;
+  const feeCollectorAddress = (await deployments.get('FeeCollector')).address;
 
   const swapFactory = SwapFactory.attach(swapFactoryAddress);
-  const feeCollector = ReferralFeeReceiver.attach(feeCollectorAddress);
+  const feeCollector = FeeCollector.attach(feeCollectorAddress);
 
   const setGovernanceWalletTxn = await swapFactory.setGovernanceWallet(deployer);
   const setFeeCollectorTxn = await swapFactory.setFeeCollector(feeCollector.address);

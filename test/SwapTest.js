@@ -216,7 +216,7 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
       expect(await this.swap.balanceOf(wallet3)).to.be.bignumber.equal('1835');
     });
   });
-*/
+  */
   describe('Deposits - Withdraws - Swap', async function () {
     beforeEach(async function() {
       this.creator = await PoolCreator.new();
@@ -518,7 +518,7 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
         await checkBalances(this.swap, this.USDT, '320051218404965936273', '362482219380823506344', '93745662849410380717');
       });
     });
-    */
+    
     
     describe('Deposit after swap', async function () {
       beforeEach(async function() {
@@ -527,6 +527,7 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
         await setBlockTime((await time.latest()).add(await this.swap.getDecayPeriod()));    
       });
       
+    
       it('Deposit should not balanced after swap', async function () {
         const started = (await time.latest()).addn(10);
         await setBlockTime(started);
@@ -536,9 +537,47 @@ contract('Swap', function([_, wallet1, wallet2, wallet3]) {
         expect(await getReceivedTokenAmount(
           this.swap,
           wallet2,
-          () => this.swap.deposit([bal.weth('1'), bal.usdt('100')], [bal.weth('1'), bal.usdt('100')], { from: wallet2 })
-        )).to.be.bignumber.equal(bal.usdt('150').addn(1000));
+          () => this.swap.deposit([bal.weth('1'), bal.usdt('100')], [bal.weth('1'), bal.usdt('37.5')], { from: wallet2 })
+        )).to.be.bignumber.equal(bal.usdt('50').addn(500));
+      });
+      
+
+      it('Keep rates after imbalanced deposit', async function () {
+        const started = (await time.latest()).addn(10);
+        await setBlockTime(started);
+        await this.swap.swap(this.WETH.address, this.USDT.address, bal.weth('1'), bal.zero, constants.ZERO_ADDRESS, { from: wallet2 });
+        
+        await checkBalances(this.swap, this.WETH, bal.weth('2'), bal.weth('2'), bal.weth('1'));
+        await checkBalances(this.swap, this.USDT, bal.usdt('75'), bal.usdt('100'), bal.usdt('75'));
+
+        await setBlockTime(started.add((await this.swap.getDecayPeriod()).divn(2)).addn(1));
+
+        await checkBalances(this.swap, this.WETH, bal.weth('2'), bal.weth('2'), bal.weth('1.5'));
+        await checkBalances(this.swap, this.USDT, bal.usdt('75'), bal.usdt('87.5'), bal.usdt('75'));
+        
+        expect(await getReceivedTokenAmount(
+          this.swap,
+          wallet2,
+          () => this.swap.deposit([bal.weth('2'), bal.usdt('75')], [bal.weth('2'), bal.usdt('75')], { from: wallet2 })
+        )).to.be.bignumber.equal(bal.usdt('100').addn(1000));
+
+        await checkBalances(this.swap, this.WETH, bal.weth('4'), bal.weth('4'), '3033333333333333332');
+        await checkBalances(this.swap, this.USDT, bal.usdt('150'), '174166666666666666666', bal.usdt('150'));
       });
     });
+    */
+    describe('Withdraws', async function () {
+      beforeEach(async function() {
+        await this.swap.deposit([bal.weth('1'), bal.usdt('100')], [bal.zero, bal.zero], { from: wallet1 });
+        expect(await this.swap.balanceOf(wallet1)).to.be.bignumber.equal(bal.usdt('100'));
+        await setBlockTime((await time.latest()).add(await this.swap.getDecayPeriod()));    
+      });
+
+      it('Can withdraw all amount', async function () {
+        await this.swap.withdraw(bal.usdt('100'), [], { from: wallet1 });
+       // expect(await this.swap.balanceOf(wallet1)).to.be.bignumber.equal(bal.zero);
+      });
+    });
+
   });
 });

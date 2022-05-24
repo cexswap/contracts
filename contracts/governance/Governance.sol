@@ -289,14 +289,16 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
     LiquidVoting.Data storage votingData
   ) private
   {
+    
     Vote.Data memory voteFrom = votingData.votes[params.from];
     Vote.Data memory voteTo = votingData.votes[params.to];
+    /*
     if(voteFrom.isDefault() && voteTo.isDefault() && params.updateFrom && params.updateTo) {
       emitEvent(params.from, voteFrom.get(defaultValue), true, params.balanceFrom.sub(params.amount));
       emitEvent(params.to, voteTo.get(defaultValue), true, params.balanceTo.add(params.amount));
       return;
     }
-    
+    */
     if(params.updateFrom) {
       votingData.updateBalance(
         params.from, 
@@ -308,7 +310,7 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
         emitEvent
       );
     }
-
+    
     if(params.updateTo) {
       votingData.updateBalance(
         params.to, 
@@ -320,7 +322,7 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
         emitEvent
       );
     }
-
+    
   }
 
 }
