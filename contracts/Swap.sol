@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/math/Math.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./interfaces/IFeeCollector.sol";
 import "./lib/ERC20Helper.sol";
 import "./lib/SQRT.sol";
@@ -178,8 +178,8 @@ contract Swap is Governance {
 
       for(uint i = 0; i < maxAmounts.length; i++) {
         fairSupply = Math.max(fairSupply, maxAmounts[i]);
-        require(maxAmounts[i] > 0, "SWAP_DEPOSIT_AMOUNT_IS_ZERO");
-        require(maxAmounts[i] >= minAmounts[i], "SWAP_DEPOSIT_MIN_AMOUNT_LOW");
+        require(maxAmounts[i] > 0, "SWAP_DEPOSIT_AMOUNT_IS_ZERO_0");
+        require(maxAmounts[i] >= minAmounts[i], "SWAP_DEPOSIT_MIN_AMOUNT_LOW_0");
         _tokens[i].customTransferFrom(payable(msg.sender), address(this), maxAmounts[i]);
         receivedAmounts[i] = maxAmounts[i];
       }
@@ -196,9 +196,9 @@ contract Swap is Governance {
       
       uint256 fairSupplyCached = fairSupply; 
       for(uint i = 0; i < maxAmounts.length; i++) {
-        require(maxAmounts[i] > 0, "SWAP_DEPOSIT_AMOUNT_IS_ZERO");
+        require(maxAmounts[i] > 0, "SWAP_DEPOSIT_AMOUNT_IS_ZERO_1");
         uint256 amount = realBalances[i].mul(fairSupplyCached).add(totalSupply - 1).div(totalSupply);
-        require(amount >= minAmounts[i], "SWAP_DEPOSIT_MIN_AMOUNT_LOW");
+        require(amount >= minAmounts[i], "SWAP_DEPOSIT_MIN_AMOUNT_LOW_1");
         _tokens[i].customTransferFrom(payable(msg.sender), address(this), amount);
         receivedAmounts[i] = _tokens[i].getBalanceOf(address(this)).sub(realBalances[i]);
         fairSupply = Math.min(fairSupply, totalSupply.mul(receivedAmounts[i]).div(realBalances[i]));
@@ -360,19 +360,19 @@ contract Swap is Governance {
 
     uint256 referralReward;
     uint256 governanceReward;
+
     uint256 invariantRatio = uint256(1e36);
     invariantRatio = invariantRatio.mul(balances.src.add(confirmed)).div(balances.src);
     invariantRatio = invariantRatio.mul(balances.dst.sub(result)).div(balances.dst);
-    
     if(invariantRatio > 1e36){
       // calculate share only if invariant increased
       invariantRatio = invariantRatio.sqrt();
       uint256 invariantIncrease = totalSupply().mul(invariantRatio.sub(1e18)).div(invariantRatio);
-    
+      
       referralReward = (referral != address(0)) ? 
                         invariantIncrease.mul(referralShare).div(SwapConstants._FEE_DENOMINATOR) 
                         : 0;
-                        
+      
       governanceReward = (governanceWallet != address(0)) ? 
                         invariantIncrease.mul(governanceShare).div(SwapConstants._FEE_DENOMINATOR) 
                         : 0;

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/math/Math.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/ISwapFactory.sol";
 import "../lib/ERC20Helper.sol";
 import "../lib/VirtualBalance.sol";
@@ -57,9 +57,7 @@ abstract contract Converter is Ownable {
     _;
   }
 
-  function updatePathWhitelist(IERC20 token, bool status)
-    external
-    onlyOwner
+  function updatePathWhitelist(IERC20 token, bool status) external onlyOwner
   {
     pathWhitelist[token] = status;
   }

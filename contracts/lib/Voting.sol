@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/math/Math.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Vote.sol";
 
 
@@ -63,7 +63,7 @@ library Voting {
     uint256 totalSupply,
     uint256 defaultVote,
     function(address, uint256, bool, uint256) emitEvent
-  ) internal {
+  ) private {
     uint256 oldWeightedSum = self.weightedSum;
     uint256 newWeightedSum = oldWeightedSum;
     uint256 oldDefaultVote = self.defaultVote;
@@ -76,7 +76,7 @@ library Voting {
     }
 
     if(newVote.isDefault()) {
-      newDefaultVote = newDefaultVote.add(oldBalance);
+      newDefaultVote = newDefaultVote.add(newBalance);
     } else {
       newWeightedSum = newWeightedSum.add(newBalance.mul(newVote.get(defaultVote)));
     }

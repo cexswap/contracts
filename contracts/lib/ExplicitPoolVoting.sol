@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./SafeCast.sol";
 import "./VirtualVote.sol";
 import "./Vote.sol";
@@ -62,7 +62,7 @@ library ExplicitPoolVoting {
     uint256 newBalance,
     uint256 defaultVote,
     function(address, uint256, bool, uint256) emitEvent
-  ) internal {
+  ) private {
     uint256 oldWeightedSum = self.weightedSum;
     uint256 newWeightedSum = oldWeightedSum;
     uint256 oldVotedSupply = self.votedSupply;
@@ -90,7 +90,7 @@ library ExplicitPoolVoting {
       uint256 newResult = newVotedSupply == 0 ? defaultVote : newWeightedSum.div(newVotedSupply);
       VirtualVote.Data memory data = self.data;
       if(newResult != data.result){
-        VirtualVote.Data memory sdata = self.data;
+        VirtualVote.Data storage sdata = self.data;
         (sdata.oldResult, sdata.result, sdata.time) = (
           data.current().toUint104(),
           newResult.toUint104(),

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./SafeCast.sol";
 import "./VirtualVote.sol";
 import "./Vote.sol";
@@ -65,11 +65,12 @@ library PoolVoting {
     uint256 totalSupply,
     uint256 defaultVote,
     function(address, uint256, bool, uint256) emitEvent
-  ) internal {
+  ) private {
     uint256 oldWeightedSum = self.weightedSum;
     uint256 newWeightedSum = oldWeightedSum;
     uint256 oldDefaultVote = self.defaultVote;
     uint256 newDefaultVote = oldDefaultVote;
+    
     if(oldVote.isDefault()) {
       newDefaultVote = newDefaultVote.sub(oldBalance);
     } else {
@@ -77,7 +78,7 @@ library PoolVoting {
     }
      
     if(newVote.isDefault()) {
-      newDefaultVote = newDefaultVote.add(oldBalance);
+      newDefaultVote = newDefaultVote.add(newBalance);
     } else {
       newWeightedSum = newWeightedSum.add(newBalance.mul(newVote.get(defaultVote)));
     }
@@ -94,7 +95,7 @@ library PoolVoting {
       uint256 newResult = totalSupply == 0 ? defaultVote : newWeightedSum.add(newDefaultVote.mul(defaultVote)).div(totalSupply);
       VirtualVote.Data memory data = self.data;
       if(newResult != data.result){
-        VirtualVote.Data memory sdata = self.data;
+        VirtualVote.Data storage sdata = self.data;
         (sdata.oldResult, sdata.result, sdata.time) = (
           data.current().toUint104(),
           newResult.toUint104(),

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IFeeCollector.sol";
 import "./lib/ERC20Helper.sol";
 import "./helpers/Converter.sol";
@@ -39,7 +39,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   mapping(address => UserInfo) public userInfo;
   mapping(IERC20 => TokenInfo) public tokenInfo;
 
-  constructor(IERC20 cexToken, ISwapFactory _swapFactory) Converter(cexToken, _swapFactory){}
+  constructor(IERC20 cexBalance, ISwapFactory _swapFactory) Converter(cexBalance, _swapFactory){}
 
   /// @inheritdoc IFeeCollector
   function updateRewards(address[] calldata receivers, uint256[] calldata amounts) external override
@@ -60,7 +60,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
     // Add new reward to current epoch
     user.share[swap][currentEpoch] = user.share[swap][currentEpoch].add(amount);
     token.epochBalance[currentEpoch].totalSupply = token.epochBalance[currentEpoch].totalSupply.add(amount);
-
+    
     // Collect all processed epochs and advance user token epoch
     _collectProcessedEpochs(user, token, swap, currentEpoch);
   }
@@ -81,7 +81,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   }
 
   /** Perform chain swap described by `path`. First element of `path` should match either token of the `Swap`.
-  * The last token in chain should always be `CEX SWAP` token
+  * The last token in chain should always be `FAD` 
   */
   function trade(Swap swap, IERC20[] memory path) external nonReentrant validPool(swap) validSpread(swap)
   {

@@ -43,6 +43,6 @@
     "lint:fix": "solhint --max-warnings 0 \"contracts/**/*.sol\" --fix"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.4.2"
+    "@openzeppelin/contracts": "^4.5.0"
   }
 }
