@@ -6,6 +6,8 @@ The specials feature of this DEX is listed below (not limited to the list):
 - Community can vote for swap fee, slippage fees, referral commission, liquidity providers earned commission.
 - Community can vote treasury and referral share
 - Support of referral system
+- IDO Launchpad
+- Lottery
 - And more 
 
 CEXSwap will provide basic DEX functions, and at the same time provide service functions to enable 
@@ -52,7 +54,7 @@ This allows trades between the token pair based on the relative supplies.
 - [ ] Partnerships
 - [ ] Token listing on Exchanges
 
-**Q5 2022:**
+**Q1 2023:**
 - [ ] Governance Dapp's Development
 - [ ] Lottery Development  
 - [ ] IDO Launchpad Development  
