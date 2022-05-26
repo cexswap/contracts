@@ -53,7 +53,7 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
     view
     returns(uint256)
   {
-    return _fee.data.result;
+    return _fee.data.current();
   }
 
   /** Return the current slippage fee */
@@ -62,7 +62,7 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
     view
     returns(uint256)
   {
-    return _slippageFee.data.result;
+    return _slippageFee.data.current();
   }
 
   /** Return the current decay period */
@@ -71,7 +71,7 @@ abstract contract Governance is ERC20, Ownable, ReentrancyGuard {
     view
     returns(uint256)
   {
-    return _decayPeriod.data.result;
+    return _decayPeriod.data.current();
   }
 
   function getVirtualFee()

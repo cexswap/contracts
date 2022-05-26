@@ -81,7 +81,7 @@ contract FeeCollector is IFeeCollector, Converter, ReentrancyGuard {
   }
 
   /** Perform chain swap described by `path`. First element of `path` should match either token of the `Swap`.
-  * The last token in chain should always be `FAD` 
+  * The last token in chain should always be `CEX` 
   */
   function trade(Swap swap, IERC20[] memory path) external nonReentrant validPool(swap) validSpread(swap)
   {

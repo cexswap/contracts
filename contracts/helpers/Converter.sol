@@ -101,7 +101,7 @@ abstract contract Converter is Ownable {
     srcAmount = amount;
     dstAmount = amount;
     uint256 pathLength = path.length;
-    for(uint256 i = 0 ; i < pathLength; i += 1) {
+    for(uint256 i = 0 ; i + 1 < pathLength; i += 1) {
       Swap swap = swapFactory.pools(path[i], path[i+1]);
       uint256 maxCurrentStepAmount = path[i].getBalanceOf(address(swap)).div(_MAX_LIQUIDITY_SHARE);
       if(maxCurrentStepAmount < dstAmount) {
@@ -118,7 +118,7 @@ abstract contract Converter is Ownable {
   {
     amount = initialAmount;
     uint256 pathLength = path.length;
-    for(uint256 i = 0 ; i < pathLength; i += 1) {
+    for(uint256 i = 0 ; i + 1 < pathLength; i += 1) {
       Swap swap = swapFactory.pools(path[i], path[i+1]);
       require(_validateSpread(swap), "CONVERTOR_SPREAD_TOO_HIGH");
       uint256 value = amount;

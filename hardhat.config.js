@@ -1,6 +1,5 @@
 require('dotenv').config({path:__dirname+'/.env'})
 require("@nomiclabs/hardhat-waffle");
-//require('hardhat-exposed');
 require('solidity-coverage');
 require('hardhat-deploy');
 require('hardhat-gas-reporter');
@@ -44,14 +43,14 @@ module.exports = {
     hardhat: {
     },
     testnet: {
-      url: "https://",
-      chainId: 53,
+      url: "",
+      chainId: 0,
       gasPrice: 500000000000,
       accounts: {mnemonic: MNEMONIC}
     },
     mainnet: {
-      url: "https://",
-      chainId: 52,
+      url: "",
+      chainId: 0,
       gasPrice: 500000000000,
       accounts: {mnemonic: MNEMONIC}
     }

@@ -1,5 +1,5 @@
 ## CEXSwap Exchange
-CEXSwap is an decentralized exchange (DEX) open source project that will work for any EVM compatible chain.
+CEXSwap is a decentralized exchange (DEX) open source project that will work for any EVM compatible chain. 
   
 The dapp will work like others DEX but will be fully governed by the community using the governance token ($CEX).
 The specials feature of this DEX is listed below (not limited to the list):
@@ -9,7 +9,7 @@ The specials feature of this DEX is listed below (not limited to the list):
 - And more 
 
 CEXSwap will provide basic DEX functions, and at the same time provide service functions to enable 
-Yield Farming so that users can utilize $CEX token as much as possible. Through this, you can access 
+Yield Farming, IDO launchpad, lottery  so that users can utilize the $CEX token as much as possible. Through this, you can access 
 new features that were not used in the existing network.  
 
 Most exchanges maintain an order book and facilitate matches between buyers and sellers. 
@@ -28,7 +28,7 @@ An important feature of CEXSwap is the utilization of a factory contract that de
 This allows trades between the token pair based on the relative supplies.
  
 ### Links
-[https://www.cexswap.org](https://www.cexswap.org)
+[https://www.cexswap.org](https://www.cexswap.org)  
 
 
 ### Roadmap
@@ -54,6 +54,8 @@ This allows trades between the token pair based on the relative supplies.
 
 **Q5 2022:**
 - [ ] Governance Dapp's Development
+- [ ] Lottery Development  
+- [ ] IDO Launchpad Development  
 - [ ] Strategic Partnerships
 - [ ] Additional features
 

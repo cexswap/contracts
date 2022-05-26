@@ -96,7 +96,9 @@ contract('Swap', function([_, wallet1, wallet2, wallet3, wallet4]) {
       await setBlockTime((await time.latest()).addn(86500));
 
       await this.factory.deploy(constants.ZERO_ADDRESS, this.USDT.address);
-      this.swap = await Swap.at(await this.factory.pools(constants.ZERO_ADDRESS, this.USDT.address));
+      const pools = await this.factory.getAllPools();
+      expect(pools.length).to.be.equal(1);
+      this.swap = await Swap.at(await this.factory.pools(this.USDT.address, constants.ZERO_ADDRESS));
       await this.USDT.mint(wallet1, bal.usdt('150'));
       await this.USDT.approve(this.swap.address, bal.usdt('150'), { from: wallet1 });
 
