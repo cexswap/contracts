@@ -35,29 +35,28 @@ This allows trades between the token pair based on the relative supplies.
 
 ### Roadmap
 
-**Q2 2022:**
+**Stage 1: Launching and Community Building**
 - [x] Project Idea's & Prototype design
 - [x] Team Building
-- [x] Pitch deck Completed 
-- [x] White paper
 - [x] Website Creation & Launch
+- [ ] Community Building & Social Campaign
+- [ ] Smart Contract Creation and Verification
+- [ ] Launchpad Marketing
 
-**Q3 2022:**
-- [ ] $CEX Token Creation
-- [ ] Strategic Plan
-- [ ] Swap & Staking Dapp Development
-- [ ] Launchpad
+**Stage 2: Launchpad & Community Growth**
+- [ ] Launchpad 
+- [ ] Listing and Locking
+- [ ] Listing on Coin Ranking: CoinMarketCap and Coingecko
+- [ ] Community Growth Marketing
+- [ ] Giving out Testers Spots to the Community
 
-**Q4 2022:**
-- [ ] Swap & Staking Dapp's Launch
-- [ ] Project Launched to Public
-- [ ] Partnerships
-- [ ] Token listing on Exchanges
-
-**Q1 2023:**
-- [ ] Governance Dapp's Development
-- [ ] Lottery Development  
-- [ ] IDO Launchpad Development  
+**Stage 3: Development**
+- [ ] Swap Contract Deployment
+- [ ] Token Contract Audit and Swap Contract Audit
 - [ ] Strategic Partnerships
-- [ ] Additional features
+- [ ] Lottery Development
+- [ ] IDO Launchpad Development
 
+**Stage 4: Further Development**
+- [ ] Strategic Partnerships
+- [ ] Further Developments to be implemented and Roadmap, Website and White Paper to be updated as we grow.
